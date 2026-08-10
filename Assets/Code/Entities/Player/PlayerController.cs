@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     Rigidbody2D rb;
     private PlayerControls controls;
     private Vector2 movement;
+    
+
+
 
     // ****************************************
     //                LIFE CYCLE
@@ -41,6 +44,10 @@ public class PlayerController : MonoBehaviour
     // Optimization (controls should only be enabled when needed)
     void OnEnable() { controls.Enable(); }
     void OnDisable() { controls.Disable(); }
+
+    void Start()
+    {
+    }
 
     // Update is called once per frame
     void Update()
