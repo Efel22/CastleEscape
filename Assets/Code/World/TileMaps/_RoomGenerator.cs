@@ -2,7 +2,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+// This allows for separation of the Unity Instance and Prefabs
+// ?: If I were to edit any value of the mainGridPosition (Ex: RoomData[1]) instances then
+//    they'd change for ALL of those mainGridPosition[1] instances instead!
+// ?: Allows for per-room mainGridPosition editing 
+public class GeneratedRoom
+{
+    
+    public RoomData roomTemplate;
 
+    // This value is set when the room is generated 
+    public Vector2Int mainGridPosition;
+
+}
 
 public class _RoomGenerator : MonoBehaviour
 {
@@ -15,16 +27,18 @@ public class _RoomGenerator : MonoBehaviour
     // How many rooms to generate.
     [SerializeField] private int roomCount = 10;
 
-    // Chance for a branch to be created.
-    [Range(0f, 1f)]
-    [SerializeField] private float branchChance = 0.25f;
-
     // Gap between rooms.
     [SerializeField] private int tileGapBetweenRooms = 1;
 
     // Tile used to create halls.
     [SerializeField] private TileBase hallTile;
 
+
+    // ************************
+    // Tracking Lists 
+    // ************************
+
+    private List<GeneratedRoom> generatedRooms = new List<GeneratedRoom>(); 
 
     // ************************
     // References
@@ -38,14 +52,8 @@ public class _RoomGenerator : MonoBehaviour
 
     [SerializeField] private Transform player;
 
+    
 
-    // ************************
-    // Generated Room Positions
-    // ************************
-
-    // Keeps track of where rooms already exist.
-    private List<Vector2Int> generatedPositions = new List<Vector2Int>();
-    private List<RoomData> generatedRooms = new List<RoomData>();
 
 
     // ************************
@@ -64,116 +72,150 @@ public class _RoomGenerator : MonoBehaviour
 
     void GenerateDungeon()
     {
-        // First room always starts at (0,0).
-        Vector2Int startPosition = Vector2Int.zero;
-        RoomData firstRoom = rooms[0];
 
-        GenerateRoomAt(startPosition, firstRoom);
+        // Generate the Initial Room at 0,0
+        GenerateRoomAt(new Vector2Int(0,0), GetRandomRoom());
 
-        generatedPositions.Add(startPosition);
-        generatedRooms.Add(firstRoom);
-
-
-        // ************************
-        // Player Spawn
-        // ************************
-
-        Vector2Int anchorPosition =
-            startPosition + firstRoom.anchorPosition;
-
-        Vector3 playerWorldPosition =
-            mainGrid.GetCellCenterWorld(
-                new Vector3Int(
-                    anchorPosition.x,
-                    anchorPosition.y,
-                    0
-                )
-            );
-
-        player.position = playerWorldPosition;
-
-
-        // ************************
-        // Generate Remaining Rooms
-        // ************************
-
-        while (generatedPositions.Count < roomCount)
+        for (
+            int roomsGeneratedCounter = 1; 
+            roomsGeneratedCounter < roomCount; 
+            roomsGeneratedCounter++
+        )
         {
-            // Pick a random existing room.
-            int randomIndex =
-                Random.Range(0, generatedPositions.Count);
+            
+            // Create a list of the available Positions
+            List<Vector2Int> availablePositions = new List<Vector2Int>();
+            
+            // Stores a temporary value for a 2D Position 
+            // (will be overwritten multiple times)
+            Vector2Int PlaceRoomAt_Pos_Temp;
 
-            Vector2Int currentPosition =
-                generatedPositions[randomIndex];
+            // CHECK FOR UP:
+            PlaceRoomAt_Pos_Temp = 
+                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset("up");
 
-            RoomData currentRoom =
-                generatedRooms[randomIndex];
+            if (!IsPositionOccupied(PlaceRoomAt_Pos_Temp)) availablePositions.Add(PlaceRoomAt_Pos_Temp);
+            
+            // CHECK FOR DOWN:
+            PlaceRoomAt_Pos_Temp = 
+                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset("down");
 
+            if (!IsPositionOccupied(PlaceRoomAt_Pos_Temp)) availablePositions.Add(PlaceRoomAt_Pos_Temp);
+            
+            // CHECK FOR LEFT:
+            PlaceRoomAt_Pos_Temp = 
+                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset("left");
 
-            // Pick a random direction.
-            Vector2Int direction =
-                GetRandomDirection();
+            if (!IsPositionOccupied(PlaceRoomAt_Pos_Temp)) availablePositions.Add(PlaceRoomAt_Pos_Temp);
+            
+            // CHECK FOR RIGHT:
+            PlaceRoomAt_Pos_Temp = 
+                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset("right");
 
+            if (!IsPositionOccupied(PlaceRoomAt_Pos_Temp)) availablePositions.Add(PlaceRoomAt_Pos_Temp);
 
-            // Calculate new room position.
-            Vector2Int newPosition =
-                currentPosition +
-                direction * (roomSize + tileGapBetweenRooms);
+            // If no available positions... get out of this loop
+            if (availablePositions.Count <= 0 ) break;
 
+            // Generate a random room at the new position with the offsets 
+            GenerateRoomAt(availablePositions[Random.Range(0, availablePositions.Count)], GetRandomRoom());
 
-            // Don't generate on an existing room.
-            if (generatedPositions.Contains(newPosition))
-                continue;
+        }
+        
+    }
 
+    
+    // ************************
+    // Get Random Room
+    // ************************
+    RoomData GetRandomRoom() { return rooms[Random.Range(0, rooms.Length)]; }
 
-            // Pick a random room.
-            RoomData newRoom =
-                rooms[Random.Range(0, rooms.Length)];
+    // ************************
+    // Is Position Occupied
+    // ************************    
+    bool IsPositionOccupied(Vector2Int posToCheck)
+    {
 
+        foreach (GeneratedRoom room in generatedRooms)
+        {
+            if (room.mainGridPosition == posToCheck)
+            {
+                return true;
+            }
+        }
 
-            // Generate the room.
-            GenerateRoomAt(newPosition, newRoom);
+        return false;
+    }
 
+    // ************************
+    // Get Direction Offset
+    // ************************
+    Vector2Int GetDirectionOffset(string direction)
+    {
+        direction = direction.ToLowerInvariant();
 
-            // Generate the hall.
-            GenerateHall(
-                currentPosition,
-                currentRoom,
-                newPosition,
-                newRoom,
-                direction
-            );
+        switch (direction)
+        {
+            // Up    (0, +Y)
+            case "up":
+                return new Vector2Int(0, roomSize + tileGapBetweenRooms);
 
+            // Down  (0, -Y)
+            case "down":
+                return new Vector2Int(0, -(roomSize + tileGapBetweenRooms));
 
-            // Remember the room.
-            generatedPositions.Add(newPosition);
-            generatedRooms.Add(newRoom);
+            // Left  (-X, 0)
+            case "left":
+                return new Vector2Int(-(roomSize + tileGapBetweenRooms), 0);
+
+            // Right (+X, 0)
+            default:
+                return new Vector2Int(roomSize + tileGapBetweenRooms, 0 );
         }
     }
 
-
     // ************************
-    // Random Direction
+    // Random Direction Offset
     // ************************
-
-    Vector2Int GetRandomDirection()
+    Vector2Int GetRandomDirectionOffset()
     {
         int direction = Random.Range(0, 4);
 
         switch (direction)
         {
+            // Up    (0, +Y)
             case 0:
-                return Vector2Int.up;
+                return new Vector2Int(0, roomSize + tileGapBetweenRooms);
 
+            // Down  (0, -Y)
             case 1:
-                return Vector2Int.down;
+                return new Vector2Int(0, -(roomSize + tileGapBetweenRooms));
 
+            // Left  (-X, 0)
             case 2:
-                return Vector2Int.left;
+                return new Vector2Int(-(roomSize + tileGapBetweenRooms), 0);
 
+            // Right (+X, 0)
             default:
-                return Vector2Int.right;
+                return new Vector2Int(roomSize + tileGapBetweenRooms, 0 );
         }
+        
+        // int direction = Random.Range(0, 4);
+
+        // switch (direction)
+        // {
+        //     case 0:
+        //         return Vector2Int.up;
+
+        //     case 1:
+        //         return Vector2Int.down;
+
+        //     case 2:
+        //         return Vector2Int.left;
+
+        //     default:
+        //         return Vector2Int.right;
+        // }
     }
 
 
@@ -181,168 +223,52 @@ public class _RoomGenerator : MonoBehaviour
     // Generate Room
     // ************************
 
-    public bool GenerateRoomAt(Vector2Int roomPosition, RoomData roomToPlace)
+    public void GenerateRoomAt(Vector2Int placeRoomAt, RoomData roomToPlace)
     {
         // Make sure the room exists.
-        if (roomToPlace == null)
-            return false;
-
+        if (roomToPlace == null) return;
 
         // Copy the room's 15x15 tiles.
-        for (int x = 0; x < roomSize; x++)
+        for (int posx_room = 0; posx_room < roomSize; posx_room++)
         {
-            for (int y = 0; y < roomSize; y++)
+            for (int posy_room = 0; posy_room < roomSize; posy_room++)
             {
                 // Position of the tile inside the room.
-                Vector3Int sourcePosition =
-                    new Vector3Int(x, y, 0);
+                Vector3Int positionInsideRoom =
+                    new Vector3Int(posx_room, posy_room, 0);
 
+                
+                // Get the tile from the room.
+                TileBase tile = roomToPlace.tilemap.GetTile(positionInsideRoom);
 
                 // Position of the tile in the MainGrid.
-                Vector3Int destinationPosition =
+                Vector3Int mainGridPosition =
                     new Vector3Int(
-                        roomPosition.x + x,
-                        roomPosition.y + y,
+                        placeRoomAt.x + posx_room,
+                        placeRoomAt.y + posy_room,
                         0
                     );
-
-
-                // Get the tile from the room.
-                TileBase tile =
-                    roomToPlace.tilemap.GetTile(sourcePosition);
-
 
                 // Copy the tile if one exists.
                 if (tile != null)
                 {
                     mainTilemap.SetTile(
-                        destinationPosition,
+                        mainGridPosition,
                         tile
                     );
                 }
             }
         }
 
-        return true;
+        // Add the room to place to the generated rooms list
+        // and store its location in the main grid
+
+        GeneratedRoom roomToRegister = new GeneratedRoom();
+        roomToRegister.roomTemplate = roomToPlace;
+        roomToRegister.mainGridPosition = placeRoomAt;
+        generatedRooms.Add(roomToRegister);
     }
 
-    // ************************
-    // Generate Hall
-    // ************************
-
-    // Creates a 3-tile-wide hall between two rooms.
-    void GenerateHall(
-        Vector2Int roomAPosition,
-        RoomData roomA,
-        Vector2Int roomBPosition,
-        RoomData roomB,
-        Vector2Int direction)
-    {
-        // ************************
-        // Horizontal Hall
-        // ************************
-
-        if (direction == Vector2Int.right ||
-            direction == Vector2Int.left)
-        {
-            // Use the anchor's Y position.
-            int y;
-
-            if (direction == Vector2Int.right)
-            {
-                // Room A connects from its right side.
-                y = roomAPosition.y + roomA.anchorPosition.y;
-            }
-            else
-            {
-                // Room B connects from its right side.
-                y = roomBPosition.y + roomB.anchorPosition.y;
-            }
-
-
-            // Find the X positions between the rooms.
-            int startX =
-                Mathf.Min(
-                    roomAPosition.x,
-                    roomBPosition.x
-                ) + roomSize;
-
-            int endX =
-                Mathf.Max(
-                    roomAPosition.x,
-                    roomBPosition.x
-                );
-
-
-            // Make the hall 3 tiles wide.
-            for (int x = startX; x < endX; x++)
-            {
-                for (int offset = -1; offset <= 1; offset++)
-                {
-                    mainTilemap.SetTile(
-                        new Vector3Int(
-                            x,
-                            y + offset,
-                            0
-                        ),
-                        hallTile
-                    );
-                }
-            }
-        }
-
-
-        // ************************
-        // Vertical Hall
-        // ************************
-
-        else
-        {
-            // Use the anchor's X position.
-            int x;
-
-            if (direction == Vector2Int.up)
-            {
-                // Room A connects from its top side.
-                x = roomAPosition.x + roomA.anchorPosition.x;
-            }
-            else
-            {
-                // Room B connects from its top side.
-                x = roomBPosition.x + roomB.anchorPosition.x;
-            }
-
-
-            // Find the Y positions between the rooms.
-            int startY =
-                Mathf.Min(
-                    roomAPosition.y,
-                    roomBPosition.y
-                ) + roomSize;
-
-            int endY =
-                Mathf.Max(
-                    roomAPosition.y,
-                    roomBPosition.y
-                );
-
-
-            // Make the hall 3 tiles wide.
-            for (int y = startY; y < endY; y++)
-            {
-                for (int offset = -1; offset <= 1; offset++)
-                {
-                    mainTilemap.SetTile(
-                        new Vector3Int(
-                            x + offset,
-                            y,
-                            0
-                        ),
-                        hallTile
-                    );
-                }
-            }
-        }
-    }
+    
 
 }
