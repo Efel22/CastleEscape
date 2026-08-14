@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.ExceptionServices;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -46,9 +48,15 @@ public class _RoomGenerator : MonoBehaviour
     [SerializeField] private int roomSize = 15;
 
     // How many rooms to generate.
-    [SerializeField] private int roomCount = 10;
+    // Number MUST go from 2-9
+    // ?: If roomCount > 9 then it opens the possibility of a 
+    //    room not having a validDirection and not generate an
+    //    exit tile
+    [Range(2,9)]
+    [SerializeField] private int roomCount = 5;
 
     // Gap between rooms.
+    [Range(1,5)]
     [SerializeField] private int tileGapBetweenRooms = 1;
 
     // Tile used to create halls.
@@ -57,6 +65,15 @@ public class _RoomGenerator : MonoBehaviour
     // Hall Width and Height added to the Halls
     [SerializeField, Min(1)] private int hallSize; 
 
+    // Removal chance for each individual decorTile 
+    // (1f = No Decor) 
+    // (0f = All Decor) 
+    // (0.5f = Medium amount of Decor)
+    [Range(0f,1f)]
+    [SerializeField] private float decorRemovalChance = 0.5f;
+
+    // // Used to represent decoration in the map
+    // [SerializeField] private TileBase decoTile;
 
     // ************************
     // Tracking Lists 
@@ -69,14 +86,18 @@ public class _RoomGenerator : MonoBehaviour
     // ************************
 
     [SerializeField] private RoomData[] rooms;
+    [SerializeField] private SpawnRoomData[] spawnRooms;
+    [SerializeField] private EndRoomData[] endRooms;
 
     [SerializeField] private Grid mainGrid;
 
     [SerializeField] private Tilemap mainTilemap;
+    [SerializeField] private Tilemap decorTilemap;
 
     [SerializeField] private Transform player;
 
-    
+    [SerializeField] private _CollisionTilesGenerator collisionTileGenComp;
+
     // ************************
     // Start
     // ************************
@@ -84,6 +105,8 @@ public class _RoomGenerator : MonoBehaviour
     void Start()
     {
         GenerateDungeon();
+        if (collisionTileGenComp != null) 
+            collisionTileGenComp.CreateCollisionTiles(generatedRooms, roomSize, mainTilemap);
     }
 
 
@@ -92,10 +115,27 @@ public class _RoomGenerator : MonoBehaviour
     // ************************
     void GenerateDungeon()
     {
+        
+        // ********************************************
+        //      INITIAL ROOM GEN. & PLAYER SPAWN
+        // ********************************************
+
+        // Store the first room as it will be used to teleport the player to its
+        // spawn location value (exclusive to SpawnRoomData class itself)
+        RoomData initialSpawnRoom = GetRandomRoom(RoomType.Spawn);
 
         // Generate the Initial Room at 0,0
-        GenerateRoomAt(new Vector2Int(0,0), Direction.Down, GetRandomRoom());
+        GenerateRoomAt(new Vector2Int(0,0), Direction.Down, initialSpawnRoom);
 
+        // Cast the room (since its RoomData) to SpawnRoomData to access the player spawn position
+        Vector2Int spawnPos = ((SpawnRoomData)initialSpawnRoom).playerSpawnPosition;
+
+        // Set the player's position to the spawn Position's values
+        player.position = mainGrid.CellToWorld(new Vector3Int(spawnPos.x, spawnPos.y, 0));
+
+        // **************************************
+        //             ROOM GENERATION
+        // **************************************
         for (
             int roomsGeneratedCounter = 1; 
             roomsGeneratedCounter < roomCount; 
@@ -116,7 +156,7 @@ public class _RoomGenerator : MonoBehaviour
 
             // CHECK FOR UP:
             PlaceRoomAt_Pos_Temp = 
-                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset("up");
+                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset(Direction.Up);
 
             if (!IsPositionOccupied(PlaceRoomAt_Pos_Temp))
             {
@@ -126,7 +166,7 @@ public class _RoomGenerator : MonoBehaviour
             
             // CHECK FOR DOWN:
             PlaceRoomAt_Pos_Temp = 
-                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset("down");
+                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset(Direction.Down);
 
             if (!IsPositionOccupied(PlaceRoomAt_Pos_Temp))
             {
@@ -136,7 +176,7 @@ public class _RoomGenerator : MonoBehaviour
             
             // CHECK FOR LEFT:
             PlaceRoomAt_Pos_Temp = 
-                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset("left");
+                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset(Direction.Left);
 
             if (!IsPositionOccupied(PlaceRoomAt_Pos_Temp)) 
             {
@@ -146,7 +186,7 @@ public class _RoomGenerator : MonoBehaviour
             
             // CHECK FOR RIGHT:
             PlaceRoomAt_Pos_Temp = 
-                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset("right");
+                generatedRooms[roomsGeneratedCounter - 1].mainGridPosition + GetDirectionOffset(Direction.Right);
 
             if (!IsPositionOccupied(PlaceRoomAt_Pos_Temp))
             {
@@ -154,19 +194,29 @@ public class _RoomGenerator : MonoBehaviour
                 availableDirections.Add(Direction.Right);
             }
 
-            // If no available positions... get out of this loop
-            if (availablePositions.Count <= 0 ) break;
+            // If no available positions, then break from loop
+            if (availablePositions.Count == 0) break;
 
             int chosenIndex = Random.Range(0, availablePositions.Count);
+
+            // Determine what kind of room should generate...
+            RoomType roomType = RoomType.Generic;
+
+            // If this is the LAST room...  then
+            if (generatedRooms.Count == roomCount - 1) 
+                roomType = RoomType.End;
 
             // Generate a random room at the new position with the offsets 
             GenerateRoomAt(
                 availablePositions[chosenIndex],
                 availableDirections[chosenIndex], 
-                GetRandomRoom());
+                GetRandomRoom(roomType));
 
         }
 
+        // **************************************
+        //            HALL GENERATION
+        // **************************************
         for (
             int hallsGeneratedCounter = 1; 
             hallsGeneratedCounter < generatedRooms.Count; // All rooms may NOT generate, so don't use 'roomCount'
@@ -179,7 +229,6 @@ public class _RoomGenerator : MonoBehaviour
             GeneratedRoom RoomB = generatedRooms[hallsGeneratedCounter];
 
             GenerateHall(directionFrom_RoomB, RoomA, RoomB);
-
         }
         
     }
@@ -188,7 +237,22 @@ public class _RoomGenerator : MonoBehaviour
     // ************************
     // Get Random Room
     // ************************
-    RoomData GetRandomRoom() { return rooms[Random.Range(0, rooms.Length)]; }
+    RoomData GetRandomRoom(RoomType room = RoomType.Generic) { 
+        
+        switch (room)
+        {
+            
+            case RoomType.Spawn:
+                return spawnRooms[Random.Range(0, spawnRooms.Length)]; 
+
+            case RoomType.End:
+                return endRooms[Random.Range(0, endRooms.Length)]; 
+
+            default:
+                return rooms[Random.Range(0, rooms.Length)]; 
+        }
+
+    }
 
     // ************************
     // Is Position Occupied
@@ -210,22 +274,21 @@ public class _RoomGenerator : MonoBehaviour
     // ************************
     // Get Direction Offset
     // ************************
-    Vector2Int GetDirectionOffset(string direction)
+    Vector2Int GetDirectionOffset(Direction direction)
     {
-        direction = direction.ToLowerInvariant();
 
         switch (direction)
         {
             // Up    (0, +Y)
-            case "up":
+            case Direction.Up:
                 return new Vector2Int(0, roomSize + tileGapBetweenRooms);
 
             // Down  (0, -Y)
-            case "down":
+            case Direction.Down:
                 return new Vector2Int(0, -(roomSize + tileGapBetweenRooms));
 
             // Left  (-X, 0)
-            case "left":
+            case Direction.Left:
                 return new Vector2Int(-(roomSize + tileGapBetweenRooms), 0);
 
             // Right (+X, 0)
@@ -301,6 +364,9 @@ public class _RoomGenerator : MonoBehaviour
                 // Get the tile from the room.
                 TileBase tile = roomToPlace.tilemap.GetTile(positionInsideRoom);
 
+                // Get the DECOR tile from the room
+                TileBase decorTile = roomToPlace.decorTilemap.GetTile(positionInsideRoom);
+
                 // Position of the tile in the MainGrid.
                 Vector3Int mainGridPosition =
                     new Vector3Int(
@@ -315,6 +381,21 @@ public class _RoomGenerator : MonoBehaviour
                     mainTilemap.SetTile(
                         mainGridPosition,
                         tile
+                    );
+                }
+
+                // bool isTallDecorTile = false;
+
+                // if ()
+
+                if (
+                    decorTile != null &&
+                    Random.Range(0f,1f) > decorRemovalChance
+                )
+                {
+                    decorTilemap.SetTile(
+                        mainGridPosition,
+                        decorTile
                     );
                 }
             }
@@ -353,8 +434,8 @@ public class _RoomGenerator : MonoBehaviour
 
             // How much in the X axis does it move            
             for (
-                int i = AnchorA_MainGridPos.x - (hallSize + 1); 
-                i <= AnchorA_MainGridPos.x + (hallSize + 1); 
+                int i = AnchorA_MainGridPos.x - (hallSize); 
+                i <= AnchorA_MainGridPos.x + (hallSize); 
                 i++
             )
             {
@@ -384,6 +465,7 @@ public class _RoomGenerator : MonoBehaviour
         {
             // Store the Anchor Points positions
             Vector2Int AnchorA_Pos = RoomA.roomTemplate.anchorPosition;
+
             // Store the Rooms Positions in the MAIN GRID
             Vector2Int RoomA_MainGridPos = RoomA.mainGridPosition;
             Vector2Int RoomB_MainGridPos = RoomB.mainGridPosition;
@@ -391,17 +473,18 @@ public class _RoomGenerator : MonoBehaviour
             // Now, we need the Anchor Positions in the MAIN GRID
             Vector2Int AnchorA_MainGridPos = AnchorA_Pos + RoomA_MainGridPos;
 
-            // *NOTE: This is the OPPOSITE from UP() ^, start and stop tile positions are inverted here
+            // *anchor A Position > anchor B position
+
             // Where does it start placing Tiles on the Y Axis?:
-            int startPlacingTile_Pos = RoomB_MainGridPos.y; 
+            int startPlacingTile_Pos = RoomB_MainGridPos.y + roomSize; 
 
             // Where does it stop placing Tiles on the Y Axis?:
-            int stopPlacingTile_Pos = RoomA_MainGridPos.y + roomSize;
+            int stopPlacingTile_Pos = RoomA_MainGridPos.y;
 
             // How much in the X axis does it move            
             for (
-                int i = AnchorA_MainGridPos.x - (hallSize + 1); 
-                i <= AnchorA_MainGridPos.x + (hallSize + 1); 
+                int i = AnchorA_MainGridPos.x - (hallSize); 
+                i <= AnchorA_MainGridPos.x + (hallSize); 
                 i++
             )
             {
@@ -429,34 +512,36 @@ public class _RoomGenerator : MonoBehaviour
         // *******************************
         if (directionFrom == Direction.Right)
         {
-            // Store the Anchor Points positions
-            Vector2Int AnchorA_Pos = RoomA.roomTemplate.anchorPosition;
 
-            // Store the Rooms Positions in the MAIN GRID
-            Vector2Int RoomA_MainGridPos = RoomA.mainGridPosition;
-            Vector2Int RoomB_MainGridPos = RoomB.mainGridPosition;
+            // We need the Anchor Position in the MAIN GRID for ROOM A
+            Vector2Int AnchorA_MainGridPos = RoomA.roomTemplate.anchorPosition + RoomA.mainGridPosition;
 
-            // Now, we need the Anchor Position in the MAIN GRID for ROOM A
-            Vector2Int AnchorA_MainGridPos = AnchorA_Pos + RoomA_MainGridPos;
-
+            // --- X AXIS ---
             // Where does it start placing Tiles on the X Axis?:
-            int startPlacingTile_Pos = RoomA_MainGridPos.x + roomSize;
+            int startPlacingTile_Pos_onX = RoomA.mainGridPosition.x + roomSize;
+
+            // Where does it stop placing Tiles on the X Axis?:
+            int stopPlacingTile_Pos_onX = RoomB.mainGridPosition.x;
+
+            // --- Y AXIS ---
+            // Where does it start placing Tiles on the Y Axis?:
+            int startPlacingTile_Pos_onY = AnchorA_MainGridPos.y - (hallSize);
 
             // Where does it stop placing Tiles on the Y Axis?:
-            int stopPlacingTile_Pos = RoomB_MainGridPos.x;
+            int stopPlacingTile_Pos_onY = AnchorA_MainGridPos.y + (hallSize);
 
             // How much in the X axis does it move            
             for (
-                int i = startPlacingTile_Pos;
-                i < stopPlacingTile_Pos;
+                int i = startPlacingTile_Pos_onX;
+                i < stopPlacingTile_Pos_onX;
                 i++
             )
             {
                 // How in the Y axis does it move
                 for(
                     
-                    int j = AnchorA_MainGridPos.y - (hallSize + 1); 
-                    j <= AnchorA_MainGridPos.y + (hallSize + 1); 
+                    int j = startPlacingTile_Pos_onY; 
+                    j <= stopPlacingTile_Pos_onY; 
                     j++
                 )
                 {
@@ -464,7 +549,7 @@ public class _RoomGenerator : MonoBehaviour
                     if (hallTile != null)
                     {
                         mainTilemap.SetTile(
-                            new Vector3Int(i, j),
+                            new Vector3Int(i, j, 0),
                             hallTile
                         );
                     }   
@@ -477,34 +562,36 @@ public class _RoomGenerator : MonoBehaviour
         // *******************************
         if (directionFrom == Direction.Left)
         {
-            // Store the Anchor Points positions
-            Vector2Int AnchorA_Pos = RoomA.roomTemplate.anchorPosition;
 
-            // Store the Rooms Positions in the MAIN GRID
-            Vector2Int RoomA_MainGridPos = RoomA.mainGridPosition;
-            Vector2Int RoomB_MainGridPos = RoomB.mainGridPosition;
+            // We need the Anchor Position in the MAIN GRID for ROOM A
+            Vector2Int AnchorA_MainGridPos = RoomA.roomTemplate.anchorPosition + RoomA.mainGridPosition;
 
-            // Now, we need the Anchor Position in the MAIN GRID for ROOM A
-            Vector2Int AnchorA_MainGridPos = AnchorA_Pos + RoomA_MainGridPos;
-
+            // --- X AXIS ---
             // Where does it start placing Tiles on the X Axis?:
-            int startPlacingTile_Pos = RoomB_MainGridPos.x;
+            int startPlacingTile_Pos_onX = RoomB.mainGridPosition.x + roomSize;
+
+            // Where does it stop placing Tiles on the X Axis?:
+            int stopPlacingTile_Pos_onX = RoomA.mainGridPosition.x;
+
+            // --- Y AXIS ---
+            // Where does it start placing Tiles on the Y Axis?:
+            int startPlacingTile_Pos_onY = AnchorA_MainGridPos.y - (hallSize);
 
             // Where does it stop placing Tiles on the Y Axis?:
-            int stopPlacingTile_Pos = RoomA_MainGridPos.x + roomSize;
+            int stopPlacingTile_Pos_onY = AnchorA_MainGridPos.y + (hallSize);
 
             // How much in the X axis does it move            
             for (
-                int i = startPlacingTile_Pos;
-                i < stopPlacingTile_Pos;
+                int i = startPlacingTile_Pos_onX;
+                i < stopPlacingTile_Pos_onX;
                 i++
             )
             {
                 // How in the Y axis does it move
                 for(
                     
-                    int j = AnchorA_MainGridPos.y - (hallSize + 1); 
-                    j <= AnchorA_MainGridPos.y + (hallSize + 1); 
+                    int j = startPlacingTile_Pos_onY; 
+                    j <= stopPlacingTile_Pos_onY; 
                     j++
                 )
                 {
@@ -512,7 +599,7 @@ public class _RoomGenerator : MonoBehaviour
                     if (hallTile != null)
                     {
                         mainTilemap.SetTile(
-                            new Vector3Int(i, j),
+                            new Vector3Int(i, j, 0),
                             hallTile
                         );
                     }   
@@ -520,26 +607,6 @@ public class _RoomGenerator : MonoBehaviour
             }
         }
 
-    }
-
-    string DetermineDirection(Vector2Int directionFrom)
-    {
-        if (directionFrom.y > 0)
-        {
-            return "up";
-        }
-        else if (directionFrom.y < 0)
-        {
-            return "down";
-        }
-        else if (directionFrom.x < 0)
-        {
-            return "left";
-        }
-        else // (directionFrom.y > 0)
-        {
-            return "right";
-        }
     }
 
 }

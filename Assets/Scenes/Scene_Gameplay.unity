@@ -199,7 +199,7 @@ TilemapRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -598,6 +598,7 @@ GameObject:
   - component: {fileID: 1805301300}
   - component: {fileID: 1805301302}
   - component: {fileID: 1805301301}
+  - component: {fileID: 1805301303}
   m_Layer: 0
   m_Name: CollisionTilemap
   m_TagString: Untagged
@@ -667,7 +668,7 @@ TilemapRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -762,7 +763,7 @@ Tilemap:
     m_Data: {r: 1e-45, g: 1e-45, b: 1e-45, a: 1e-45}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_Origin: {x: 0, y: 0, z: 0}
   m_Size: {x: 20, y: 10, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
@@ -784,6 +785,44 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!19719996 &1805301303
+TilemapCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805301299}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_MaximumTileChangeCount: 1000
+  m_ExtrusionFactor: 0
+  m_UseDelaunayMesh: 0
 --- !u!1 &1820745511
 GameObject:
   m_ObjectHideFlags: 0
@@ -795,6 +834,7 @@ GameObject:
   - component: {fileID: 1820745514}
   - component: {fileID: 1820745513}
   - component: {fileID: 1820745512}
+  - component: {fileID: 1820745515}
   m_Layer: 0
   m_Name: MainGrid
   m_TagString: Untagged
@@ -815,17 +855,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_RoomGenerator
   roomSize: 15
-  roomCount: 15
-  tileGapBetweenRooms: 1
+  roomCount: 9
+  tileGapBetweenRooms: 3
   hallTile: {fileID: 11400000, guid: bbff33dff0e8cb442ac2cf62b9ec99da, type: 2}
-  hallSize: 0
+  hallSize: 1
+  decorRemovalChance: 0.5
   rooms:
   - {fileID: 4112802625203434013, guid: 7ffd842f08f7f1e4bba40cfb64084165, type: 3}
   - {fileID: -2081128249020569680, guid: b181676d03e02824eb833b56c9bb72fe, type: 3}
   - {fileID: 8004831243577946423, guid: 9ecd575b35bb83546b6a7f387fc20bce, type: 3}
+  spawnRooms:
+  - {fileID: 4498539320313726474, guid: 8e00dd409173d8d44a0001039e42a426, type: 3}
+  - {fileID: 4498539320313726474, guid: a5814e9890e45e143901ae1955f4eba6, type: 3}
+  endRooms:
+  - {fileID: 3831500094162985295, guid: 5db379637086ad74f9e3e16bbfa3e804, type: 3}
+  - {fileID: 3831500094162985295, guid: 82054a88c33b48e4f8b7fcd9b09fd03c, type: 3}
   mainGrid: {fileID: 1820745513}
   mainTilemap: {fileID: 2027723506}
+  decorTilemap: {fileID: 483271762}
   player: {fileID: 795874075}
+  collisionTileGenComp: {fileID: 1820745515}
 --- !u!156049354 &1820745513
 Grid:
   m_ObjectHideFlags: 0
@@ -856,6 +905,21 @@ Transform:
   - {fileID: 1805301300}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1820745515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820745511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ff23d308e756e0439574bb200248841, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_CollisionTilesGenerator
+  collisionTilemap: {fileID: 1805301302}
+  collisionTile: {fileID: 11400000, guid: 0aa8a4b019c742741a01944f22aac2e8, type: 2}
+  evaluatedTile: {fileID: 11400000, guid: bbff33dff0e8cb442ac2cf62b9ec99da, type: 2}
 --- !u!1 &2027723505
 GameObject:
   m_ObjectHideFlags: 0
