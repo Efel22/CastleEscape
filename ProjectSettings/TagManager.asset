@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 3
   tags:
   - MainGrid
+  - WallsTilemap
+  - DecoTilemap
+  - CollisionTilemap
+  - Entity
   layers:
   - Default
   - TransparentFX

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5490d0c7f183a3d4c80b893d9906a90e, type: 3}
+  m_Name: DungeonScenery
+  m_EditorClassIdentifier: Assembly-CSharp::SceneryData
+  name: Dungeon
+  rooms:
+  - {fileID: 4112802625203434013, guid: 7ffd842f08f7f1e4bba40cfb64084165, type: 3}
+  - {fileID: -2081128249020569680, guid: b181676d03e02824eb833b56c9bb72fe, type: 3}
+  - {fileID: 8004831243577946423, guid: 9ecd575b35bb83546b6a7f387fc20bce, type: 3}
+  spawnRooms:
+  - {fileID: 4498539320313726474, guid: 8e00dd409173d8d44a0001039e42a426, type: 3}
+  - {fileID: 4498539320313726474, guid: a5814e9890e45e143901ae1955f4eba6, type: 3}
+  endRooms:
+  - {fileID: 3831500094162985295, guid: 5db379637086ad74f9e3e16bbfa3e804, type: 3}
+  - {fileID: 3831500094162985295, guid: 82054a88c33b48e4f8b7fcd9b09fd03c, type: 3}
