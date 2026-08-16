@@ -1216,10 +1216,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: S_Garden_Floor_
+      name: S_Garden_Floor_3
       rect:
         serializedVersion: 2
-        x: 96
+        x: 112
         y: 160
         width: 16
         height: 16
@@ -1241,7 +1241,7 @@ TextureImporter:
       name: S_Garden_Floor_2
       rect:
         serializedVersion: 2
-        x: 112
+        x: 96
         y: 160
         width: 16
         height: 16
@@ -1395,13 +1395,13 @@ TextureImporter:
       name: S_Lamppost
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 80
         width: 16
-        height: 48
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+        height: 63
+      alignment: 9
+      pivot: {x: 0.5, y: 0.125}
+      border: {x: 3, y: 3, z: 3, w: 16}
       customData: 
       outline: []
       physicsShape: []
@@ -1421,8 +1421,8 @@ TextureImporter:
         y: 96
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1439,12 +1439,12 @@ TextureImporter:
       name: S_Garden_FlowerPot_Pink
       rect:
         serializedVersion: 2
-        x: 0
-        y: 112
+        x: 64
+        y: 96
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1461,12 +1461,12 @@ TextureImporter:
       name: S_Garden_FlowerPot_Magenta
       rect:
         serializedVersion: 2
-        x: 16
-        y: 112
+        x: 80
+        y: 96
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1483,12 +1483,12 @@ TextureImporter:
       name: S_Garden_Bench
       rect:
         serializedVersion: 2
-        x: 0
-        y: 80
+        x: 16
+        y: 96
         width: 32
         height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1510,7 +1510,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1532,7 +1532,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1554,7 +1554,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1576,7 +1576,7 @@ TextureImporter:
         width: 16
         height: 16
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1585,6 +1585,138 @@ TextureImporter:
       bones: []
       spriteID: 172c0711fb9eed74887f084e7e1e4be0
       internalID: -341245939
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: S_DungeonRuleTile
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 84589df5756b91749a4cf8c63bd18ae8
+      internalID: 2008897185
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: S_GardenRuleTile
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9c826313b1d7c83408c31b797939dcd2
+      internalID: -1278003255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: S_PottedPlantRuleTile
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 16
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b13be79f85126b242acd3d5e18518f86
+      internalID: 508717476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: T_all_tilesets_0
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 192
+        width: 64
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.25}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7b78eded7595b64ea6a132504ae3748
+      internalID: 820941693
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: S_Portal
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 240
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1f8075ef2acde4b409c364ecf95f945c
+      internalID: 505687480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: S_Particle_Portal
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 224
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b6138203c9bf9c64bba89ee3c93ddc34
+      internalID: 1183831392
       vertices: []
       indices: 
       edges: []
@@ -1613,6 +1745,7 @@ TextureImporter:
       S_Deco_Sign: 966580114
       S_Deco_Skull: 38570412
       S_Deco_Statue: 1724860580
+      S_DungeonRuleTile: 2008897185
       S_Dungeon_E_Corner_Inner: -1386609620
       S_Dungeon_Floor: 1862984450
       S_Dungeon_Floor_1: -1418380407
@@ -1636,12 +1769,13 @@ TextureImporter:
       S_Dungeon_SW_Corner_Outer: 1705543909
       S_Dungeon_S_Corner_Inner: 500681852
       S_Dungeon_W_Corner_Inner: 1134586787
+      S_GardenRuleTile: -1278003255
       S_Garden_Bench: -1432269786
       S_Garden_E_Corner_Inner: 19227928
       S_Garden_Floor: 509374376
-      S_Garden_Floor_: -416595335
       S_Garden_Floor_1: 257708098
       S_Garden_Floor_2: -2077932836
+      S_Garden_Floor_3: -416595335
       S_Garden_Floor_4: 1891488986
       S_Garden_Floor_5: -945618225
       S_Garden_Floor_6: 663458085
@@ -1663,6 +1797,9 @@ TextureImporter:
       S_Garden_S_Corner_Inner: -1003861472
       S_Garden_W_Corner_Inner: 1006136742
       S_Lamppost: -837020540
+      S_Particle_Portal: 1183831392
+      S_Portal: 2485648848527265456
+      S_PottedPlantRuleTile: 508717476
       S_RoomArrow_Down: -2040379582
       S_RoomArrow_Left: -1317567580
       S_RoomArrow_Right: -1165371098
@@ -1670,7 +1807,7 @@ TextureImporter:
       S_WallTorch_0: -1017270590
       S_WallTorch_1: -677480634
       S_WallTorch_2: -1298010693
-      T_all_tilesets_1: 2485648848527265456
+      T_all_tilesets_0: 820941693
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

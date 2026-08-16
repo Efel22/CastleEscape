@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
+using Unity.Mathematics;
 using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -46,7 +48,9 @@ public class _RoomGenerator : MonoBehaviour
     // ************************
 
     [SerializeField] private SceneryData[] sceneries;
-    private SceneryData currentScenery;
+
+    // Holds the Chosen Scenery's Index
+    private int chosenSceneryIndex;
 
     // ************************
     // Room Settings
@@ -70,22 +74,12 @@ public class _RoomGenerator : MonoBehaviour
     [Header("Hall Settings")] 
 
     // Tile used to create halls.
-    [SerializeField] private TileBase hallTile;
+    private TileBase hallTile;
     
     // Hall Width and Height added to the Halls
-    [SerializeField, Min(1)] private int hallSize; 
-
-    [Header("Decoration Settings")] 
-
-    // Removal chance for each individual decorTile 
-    // (1f = No Decor) 
-    // (0f = All Decor) 
-    // (0.5f = Medium amount of Decor)
-    [Range(0f,1f)]
-    [SerializeField] private float decorRemovalChance = 0.5f;
-
-    // // Used to represent decoration in the map
-    // [SerializeField] private TileBase decoTile;
+    
+    [Range(1,3)]
+    [SerializeField] private int hallSize; 
 
     // ************************
     // Tracking Lists 
@@ -99,9 +93,9 @@ public class _RoomGenerator : MonoBehaviour
 
     [Header("References")] 
 
-    [SerializeField] private RoomData[] rooms;
-    [SerializeField] private SpawnRoomData[] spawnRooms;
-    [SerializeField] private EndRoomData[] endRooms;
+    private RoomData[] rooms;
+    private SpawnRoomData[] spawnRooms;
+    private EndRoomData[] endRooms;
 
     [SerializeField] private Grid mainGrid;
 
@@ -112,6 +106,7 @@ public class _RoomGenerator : MonoBehaviour
 
     [SerializeField] private _CollisionTilesGenerator collisionTileGenComp;
     [SerializeField] private GameObject exitEntityRef;
+    [SerializeField] private Camera mainCamera;
 
     // ************************
     // Start
@@ -123,10 +118,6 @@ public class _RoomGenerator : MonoBehaviour
         // ************************************
         //            ERROR LOGGING
         // ************************************
-        if (hallTile == null)
-        {
-            Debug.LogError("hallTile is NULL"); return;
-        }
         if (mainTilemap == null)
         {
             Debug.LogError("mainTilemap is NULL"); return;
@@ -139,14 +130,82 @@ public class _RoomGenerator : MonoBehaviour
         {
             Debug.LogError("exitEntityRef is NULL"); return;
         }
+        if (sceneries == null)
+        {
+            Debug.LogError("sceneries is NULL"); return;
+        }
 
+        
         GenerateDungeon();
-        // collisionTileGenComp.CreateCollisionTiles(generatedRooms, roomSize, mainTilemap);
+    }
+
+    // ************************
+    // Choose Scenery
+    // ************************
+
+    void ChooseScenery()
+    {
+        chosenSceneryIndex = UnityEngine.Random.Range(0,sceneries.Length);
+        
+        // ************************************
+        //            ERROR LOGGING
+        // ************************************
+        if (sceneries[chosenSceneryIndex].rooms.Length == 0)
+        {
+            Debug.LogError("Chosen Scenery's Generic Rooms is EMPTY"); return;
+        }
+        if (sceneries[chosenSceneryIndex].spawnRooms.Length == 0)
+        {
+            Debug.LogError("Chosen Scenery's Spawn Rooms is EMPTY"); return;
+        }
+        if (sceneries[chosenSceneryIndex].endRooms.Length == 0)
+        {
+            Debug.LogError("Chosen Scenery's End Rooms is EMPTY"); return;
+        }
+        if (sceneries[chosenSceneryIndex].hallTile == null)
+        {
+            Debug.LogError("Chosen Scenery's hallTile is NULL"); return;
+        }
+
+        // ?: Copy the hall tile into the current hallTile
+        //    to be used
+        hallTile = sceneries[chosenSceneryIndex].hallTile;
+
+        // ?: Copy each type of Room from the Scenery into 
+        //    the current rooms to be used 
+
+        rooms = sceneries[chosenSceneryIndex].rooms;
+        spawnRooms = sceneries[chosenSceneryIndex].spawnRooms;
+        endRooms = sceneries[chosenSceneryIndex].endRooms;
+
+        SetBackgroundColor();
+    }
+
+    // ************************
+    // Set Background Color
+    // ************************
+    private void SetBackgroundColor()
+    {
+        
+        // ************************************
+        //            ERROR LOGGING
+        // ************************************
+        if (sceneries[chosenSceneryIndex].backgroundColor == null)
+        {
+            Debug.LogError("Chosen Scenery's backgroundColor is NULL"); return;
+        }
+        if (mainCamera == null)
+        {
+            Debug.LogError("mainCamera is NULL"); return;
+        }
+
+        mainCamera.backgroundColor = sceneries[chosenSceneryIndex].backgroundColor;
+        
     }
 
 
     // ************************
-    // Dungeon Generation
+    // Generate Dungeon
     // ************************
     public void GenerateDungeon()
     {
@@ -154,6 +213,8 @@ public class _RoomGenerator : MonoBehaviour
         // ********************************************
         //      INITIAL ROOM GEN. & PLAYER SPAWN
         // ********************************************
+
+        ChooseScenery();
 
         // Reset state from any previous generation
         generatedRooms.Clear();
@@ -214,7 +275,7 @@ public class _RoomGenerator : MonoBehaviour
             // If no available positions, then break from loop
             if (availablePositions.Count == 0) break;
 
-            int chosenIndex = Random.Range(0, availablePositions.Count);
+            int chosenIndex = UnityEngine.Random.Range(0, availablePositions.Count);
 
             // If this is the LAST room...  then
             if (generatedRooms.Count == roomCount - 1) 
@@ -262,13 +323,13 @@ public class _RoomGenerator : MonoBehaviour
         {
             
             case RoomType.Spawn:
-                return spawnRooms[Random.Range(0, spawnRooms.Length)]; 
+                return spawnRooms[UnityEngine.Random.Range(0, spawnRooms.Length)]; 
 
             case RoomType.End:
-                return endRooms[Random.Range(0, endRooms.Length)]; 
+                return endRooms[UnityEngine.Random.Range(0, endRooms.Length)]; 
 
             default:
-                return rooms[Random.Range(0, rooms.Length)]; 
+                return rooms[UnityEngine.Random.Range(0, rooms.Length)]; 
         }
 
     }
@@ -321,7 +382,7 @@ public class _RoomGenerator : MonoBehaviour
     // ************************
     Vector2Int GetRandomDirectionOffset()
     {
-        int direction = Random.Range(0, 4);
+        int direction = UnityEngine.Random.Range(0, 4);
 
         switch (direction)
         {
@@ -409,7 +470,7 @@ public class _RoomGenerator : MonoBehaviour
                 // --- DECOR TILE PLACEMENT ---
                 if (
                     decorTile != null &&
-                    Random.Range(0f,1f) > decorRemovalChance
+                    UnityEngine.Random.Range(0f,1f) > roomToPlace.decorRemovalChance
                 )
                 {
                     decorTilemap.SetTile(

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5490d0c7f183a3d4c80b893d9906a90e, type: 3}
   m_Name: DungeonScenery
   m_EditorClassIdentifier: Assembly-CSharp::SceneryData
-  name: Dungeon
+  sceneryType: 0
+  backgroundColor: {r: 0.14869326, g: 0, b: 0.4867924, a: 0}
   rooms:
   - {fileID: 4112802625203434013, guid: 7ffd842f08f7f1e4bba40cfb64084165, type: 3}
   - {fileID: -2081128249020569680, guid: b181676d03e02824eb833b56c9bb72fe, type: 3}
@@ -23,3 +24,4 @@ MonoBehaviour:
   endRooms:
   - {fileID: 3831500094162985295, guid: 5db379637086ad74f9e3e16bbfa3e804, type: 3}
   - {fileID: 3831500094162985295, guid: 82054a88c33b48e4f8b7fcd9b09fd03c, type: 3}
+  hallTile: {fileID: 11400000, guid: bbff33dff0e8cb442ac2cf62b9ec99da, type: 2}

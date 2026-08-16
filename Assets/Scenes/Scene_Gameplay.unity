@@ -253,51 +253,107 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
+  - m_RefCount: 0
+    m_Data: {fileID: 0}
   m_TileMatrixArray:
   - m_RefCount: 0
     m_Data:
-      e00: 2.9794828e-30
+      e00: 0
       e01: 0
-      e02: 2.9795009e-30
-      e03: -1.4693702e-38
-      e10: 3.27e-43
+      e02: 0
+      e03: 1271.2637
+      e10: 0
       e11: 0
-      e12: 3.27e-43
-      e13: 8.76e-43
-      e20: -9.8606084e+33
+      e12: 0
+      e13: 7e-44
+      e20: 0
       e21: 0
-      e22: -2.5995962e-29
-      e23: 1.1554199e-18
-      e30: 4.5908e-41
+      e22: 1e-45
+      e23: -6.422066e-17
+      e30: 0
       e31: 0
-      e32: 8.8e-43
-      e33: 8.77e-43
+      e32: 0
+      e33: 4.5908e-41
   - m_RefCount: 0
     m_Data:
-      e00: 2.9794828e-30
+      e00: 1269.7578
       e01: 0
-      e02: 2.9795009e-30
-      e03: -1.4693702e-38
-      e10: 3.27e-43
+      e02: 1269.7695
+      e03: 2.7105096e-19
+      e10: 7e-44
       e11: 0
-      e12: 3.27e-43
-      e13: 8.76e-43
-      e20: -9.8606084e+33
+      e12: 7e-44
+      e13: 4.4e-43
+      e20: -6.422066e-17
       e21: 0
-      e22: -2.5995962e-29
-      e23: 1.1553339e-18
+      e22: 1.18113e-40
+      e23: -7.460788e-29
       e30: 4.5908e-41
       e31: 0
-      e32: 8.8e-43
-      e33: 8.77e-43
+      e32: 4.44e-43
+      e33: 4.4e-43
+  - m_RefCount: 0
+    m_Data:
+      e00: 0
+      e01: 0
+      e02: 0
+      e03: 1271.2637
+      e10: 0
+      e11: 0
+      e12: 0
+      e13: 7e-44
+      e20: 0
+      e21: 0
+      e22: 1e-45
+      e23: -6.422066e-17
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 4.5908e-41
+  - m_RefCount: 0
+    m_Data:
+      e00: 0
+      e01: 0
+      e02: 0
+      e03: 1269.6562
+      e10: 0
+      e11: 0
+      e12: 0
+      e13: 7e-44
+      e20: 0
+      e21: 0
+      e22: 1e-45
+      e23: -6.422066e-17
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 4.5908e-41
   m_TileColorArray:
   - m_RefCount: 0
-    m_Data: {r: 1e-45, g: 1e-45, b: 1e-45, a: 1e-45}
+    m_Data: {r: 7.0241e-41, g: 7.0241e-41, b: 7.0241e-41, a: 7.0241e-41}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: 0, y: 0, z: 0}
-  m_Size: {x: 20, y: 10, z: 1}
+  m_Origin: {x: 0, y: -5, z: 0}
+  m_Size: {x: 20, y: 15, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -940,10 +996,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82a6d92d522370d4482455ada4eee24e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_RoomGenerator
+  sceneries:
+  - {fileID: 11400000, guid: f074604afabc26748a8e614475f4e710, type: 2}
+  - {fileID: 11400000, guid: 9735d0cd4f327804695c055f9d0bdf9f, type: 2}
   roomSize: 15
-  roomCount: 2
+  roomCount: 3
   tileGapBetweenRooms: 1
-  hallTile: {fileID: 11400000, guid: bbff33dff0e8cb442ac2cf62b9ec99da, type: 2}
   hallSize: 1
   decorRemovalChance: 0.5
   rooms:
@@ -962,6 +1020,7 @@ MonoBehaviour:
   player: {fileID: 795874075}
   collisionTileGenComp: {fileID: 1820745515}
   exitEntityRef: {fileID: 4282384692090923333, guid: 311619d9c8b3b5149abdb3b18fdb8580, type: 3}
+  mainCamera: {fileID: 1519270268}
 --- !u!156049354 &1820745513
 Grid:
   m_ObjectHideFlags: 0
