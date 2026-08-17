@@ -1001,19 +1001,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9735d0cd4f327804695c055f9d0bdf9f, type: 2}
   roomSize: 15
   roomCount: 3
-  tileGapBetweenRooms: 1
-  hallSize: 1
-  decorRemovalChance: 0.5
-  rooms:
-  - {fileID: 4112802625203434013, guid: 7ffd842f08f7f1e4bba40cfb64084165, type: 3}
-  - {fileID: -2081128249020569680, guid: b181676d03e02824eb833b56c9bb72fe, type: 3}
-  - {fileID: 8004831243577946423, guid: 9ecd575b35bb83546b6a7f387fc20bce, type: 3}
-  spawnRooms:
-  - {fileID: 4498539320313726474, guid: 8e00dd409173d8d44a0001039e42a426, type: 3}
-  - {fileID: 4498539320313726474, guid: a5814e9890e45e143901ae1955f4eba6, type: 3}
-  endRooms:
-  - {fileID: 3831500094162985295, guid: 5db379637086ad74f9e3e16bbfa3e804, type: 3}
-  - {fileID: 3831500094162985295, guid: 82054a88c33b48e4f8b7fcd9b09fd03c, type: 3}
+  tileGapBetweenRooms: 2
+  hallSize: 2
   mainGrid: {fileID: 1820745513}
   mainTilemap: {fileID: 2027723506}
   decorTilemap: {fileID: 483271762}

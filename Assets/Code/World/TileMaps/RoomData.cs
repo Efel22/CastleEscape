@@ -34,9 +34,12 @@ public class RoomData : MonoBehaviour
     [Range(0f,1f)]
     [SerializeField] public float decorRemovalChance = 0.5f;
 
-    [Header("Torch Settings")] 
+    [Header("Illumination Prefab. Settings")] 
 
     // Where to spawn the Torch Prefabs
-    public List<Vector2Int> TorchPositions = new List<Vector2Int>();  
+    public List<Vector2Int> lightSourcePositions = new List<Vector2Int>();  
+
+    // Placed on each of the specified lightSourcePositions
+    public GameObject lightAsset;
 
 }

@@ -229,10 +229,17 @@ public class _RoomGenerator : MonoBehaviour
         // Cast the room (since its RoomData) to SpawnRoomData to access the player spawn position
         Vector2Int spawnPos = ((SpawnRoomData)initialSpawnRoom).playerSpawnPosition;
 
-        // Set the player's position to the spawn Position's values
-        player.position = mainGrid.CellToWorld(new Vector3Int(spawnPos.x, spawnPos.y, 0));
+        // Required to add an offset to the player spawn (so it spawns in a )
+        Vector3 spawnPos_World = mainGrid.CellToWorld(new Vector3Int(spawnPos.x, spawnPos.y, 0));
 
-        // *************************************
+        // Add the offset so player spawns in the center of the tile 
+        spawnPos_World.x += 0.5f;
+        spawnPos_World.y += 0.5f;
+
+        // Set the player's position to the spawn Position's values
+        player.position = spawnPos_World;
+
+        // ***************es un**********************
         //       SETUP VALUES FOR ROOM GEN.
         // *************************************
 
@@ -502,10 +509,15 @@ public class _RoomGenerator : MonoBehaviour
             // Convert to WORLD space
             Vector3 exitTilePos_World = mainGrid.CellToWorld(exitTilePos_mainGrid);
 
+            exitTilePos_World.x += 0.5f;
+            exitTilePos_World.y += 0.5f;
+
             // Spawn the Exit Entity Ref
             Instantiate(exitEntityRef, exitTilePos_World, Quaternion.identity);
 
         }
+
+        
 
     }
 
